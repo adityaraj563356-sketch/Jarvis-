@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS AI</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #05070b;
+  color: white;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.app {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100vh;
+  padding: 35px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 {
+  margin: 20px 0 5px;
+  font-size: 38px;
+  letter-spacing: 5px;
+}
+
+.status {
+  color: #8c96a8;
+  margin-bottom: 50px;
+}
+
+.arc {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  border: 3px solid #36a3ff;
+  box-shadow:
+    0 0 20px #168cff,
+    inset 0 0 25px #168cff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 45px;
+}
+
+.mic {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: #101722;
+  color: white;
+  font-size: 40px;
+}
+
+.mic:active {
+  transform: scale(0.94);
+}
+
+#output {
+  width: 100%;
+  min-height: 70px;
+  padding: 18px;
+  border-radius: 15px;
+  background: #10141c;
+  border: 1px solid #242d3b;
+  text-align: center;
+  color: #dce7f5;
+  line-height: 1.5;
+}
+
+button {
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <h1>JARVIS</h1>
+  <div class="status" id="status">Ready to talk</div>
+
+  <div class="arc">
+    <button class="mic" onclick="startListening()">🎙️</button>
+  </div>
+
+  <div id="output">
+    Mic दबाकर JARVIS से बात करें
+  </div>
+
+</div>
+
+<script>
+
+const statusText = document.getElementById("status");
+const output = document.getElementById("output");
+
+const SpeechRecognition =
+  window.SpeechRecognition ||
+  window.webkitSpeechRecognition;
+
+let recognition;
+
+if (SpeechRecognition) {
+
+  recognition = new SpeechRecognition();
+  recognition.lang = "hi-IN";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onstart = function () {
+    statusText.innerText = "Listening...";
+    output.innerText = "मैं सुन रहा हूँ...";
+  };
+
+  recognition.onresult = function (event) {
+
+    const text = event.results[0][0].transcript;
+
+    output.innerText = "आप: " + text;
+
+    jarvisReply(text);
+  };
+
+  recognition.onerror = function () {
+    statusText.innerText = "Mic error";
+    output.innerText = "Microphone permission check करें.";
+  };
+
+  recognition.onend = function () {
+    statusText.innerText = "Ready to talk";
+  };
+
+} else {
+
+  output.innerText =
+    "इस browser में voice recognition supported नहीं है.";
+}
+
+function startListening() {
+
+  if (!recognition) return;
+
+  try {
+    recognition.start();
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+function jarvisReply(text) {
+
+  let reply = "";
+
+  const lower = text.toLowerCase();
+
+  if (
+    lower.includes("hello") ||
+    lower.includes("हेलो") ||
+    lower.includes("हाय")
+  ) {
+    reply = "Hello! Main JARVIS hoon. Aap mujhse baat kar sakte hain.";
+  }
+
+  else if (
+    lower.includes("naam") ||
+    lower.includes("name")
+  ) {
+    reply = "Mera naam JARVIS hai.";
+  }
+
+  else if (
+    lower.includes("kaise ho") ||
+    lower.includes("कैसे हो")
+  ) {
+    reply = "Main bilkul ready hoon. Aap bataiye.";
+  }
+
+  else {
+    reply = "Maine suna: " + text +
+            ". Abhi mera AI brain connect nahi hua hai.";
+  }
+
+  output.innerText = "JARVIS: " + reply;
+
+  speak(reply);
+}
+
+function speak(text) {
+
+  const speech = new SpeechSynthesisUtterance(text);
+
+  speech.lang = "hi-IN";
+  speech.rate = 0.95;
+  speech.pitch = 1;
+
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(speech);
+}
+
+</script>
+
+</body>
+</html>
